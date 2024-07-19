@@ -6,36 +6,15 @@
 // const { createConnection, getRepository } = require("typeorm");
 // require("reflect-metadata");
 // const cors = require("cors");
+// const axios = require("axios");
 
-// const JokeEntity = require("./entity/Joke");
+// // const JokeEntity = require("./entity/Joke");
 
 // const app = express();
 // app.use(bodyParser.json());
 
 // // Use CORS middleware
 // app.use(cors());
-
-// const mongoURI =
-//   "mongodb+srv://praveenk:Z4uq2BwMcoJWDZ3k@jokesapp.khokyn1.mongodb.net/?retryWrites=true&w=majority&appName=JokesApp";
-// mongoose.connect(mongoURI, {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
-// });
-
-// const jokeSchema = new mongoose.Schema({
-//   type: String,
-//   content: String,
-//   status: String,
-// });
-
-// const Joke = mongoose.model("Joke", jokeSchema);
-
-// const userSchema = new mongoose.Schema({
-//   email: String,
-//   password: String,
-// });
-
-// const User = mongoose.model("User", userSchema);
 
 // app.post("/auth/login", async (req, res) => {
 //   const { email, password } = req.body;
@@ -65,58 +44,75 @@
 // };
 
 // app.get("/jokes", authMiddleware, async (req, res) => {
-//   const jokes = await Joke.find();
-//   res.json(jokes);
+//   try {
+//     const response = await axios.get("http://localhost:3003/jokes");
+//     res.json(response.data);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send("Server error");
+//   }
 // });
 
 // app.put("/jokes/:id", authMiddleware, async (req, res) => {
 //   const { id } = req.params;
-//   const joke = await Joke.findByIdAndUpdate(id, req.body, { new: true });
-//   res.json(joke);
+//   try {
+//     const response = await axios.put(
+//       `http://localhost:3003/jokes/${id}`,
+//       req.body
+//     );
+//     res.json(response.data);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send("Server error");
+//   }
 // });
 
 // app.delete("/jokes/:id", authMiddleware, async (req, res) => {
 //   const { id } = req.params;
-
 //   try {
-//     const result = await Joke.findByIdAndDelete(id);
-
-//     if (result) {
-//       res.send("Joke deleted");
-//     } else {
-//       res.status(404).send("Joke not found");
-//     }
+//     const response = await axios.delete(`http://localhost:3003/jokes/${id}`);
+//     res.json(response.data);
 //   } catch (error) {
 //     console.error(error);
 //     res.status(500).send("Server error");
 //   }
 // });
 
-// app.delete("/mysql/jokes/:jokeId", authMiddleware, async (req, res) => {
-//   const { jokeId } = req.params;
-//   const jokeRepository = getRepository(JokeEntity);
+// app.post("/deliver-joke", authMiddleware, async (req, res) => {
+//   const { type, content, jokeId, status } = req.body;
 
 //   try {
-//     const joke = await jokeRepository.findOne({ where: { jokeId: jokeId } });
+//     // const joke = await Joke.findById(id);
+//     // if (!joke) {
+//     //   return res.status(404).send("Joke not found");
+//     // }
 
-//     if (joke) {
-//       await jokeRepository.remove(joke);
-//       res.send("Joke deleted");
-//     } else {
-//       res.status(404).send("Joke not found");
-//     }
+//     const response = await axios.post("http://localhost:3000/jokes/add", {
+//       type: type,
+//       content: content,
+//       jokeId: jokeId,
+//       status: status,
+//     });
+
+//     res.json(response.data);
 //   } catch (error) {
 //     console.error(error);
 //     res.status(500).send("Server error");
 //   }
 // });
 
-// app.post("/mysql/jokes", authMiddleware, async (req, res) => {
-//   const { type, content, jokeId } = req.body;
-//   const jokeRepository = getRepository(JokeEntity);
-//   const newJoke = jokeRepository.create({ type, content, jokeId });
-//   await jokeRepository.save(newJoke);
-//   res.json(newJoke);
+// app.delete("/delete-joke", authMiddleware, async (req, res) => {
+//   const { jokeId } = req.body;
+
+//   try {
+//     const response = await axios.delete(
+//       `http://localhost:3000/jokes/delete/${jokeId}`
+//     );
+//     res.json(response.data);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send("Server error");
+//   }
 // });
 
 // const seedAdminUser = async () => {
@@ -138,63 +134,26 @@
 // startServer();
 
 const express = require("express");
-const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { createConnection, getRepository } = require("typeorm");
-require("reflect-metadata");
 const cors = require("cors");
+const axios = require("axios");
 
-const JokeEntity = require("./entity/Joke");
-
+// Initialize express app
 const app = express();
 app.use(bodyParser.json());
 
 // Use CORS middleware
 app.use(cors());
 
-const mongoURI =
-  "mongodb+srv://praveenk:Z4uq2BwMcoJWDZ3k@jokesapp.khokyn1.mongodb.net/?retryWrites=true&w=majority&appName=JokesApp";
+// Hardcoded user credentials
+const HARD_CODED_EMAIL = "admin@admin.com";
+const HARD_CODED_PASSWORD = "admin123";
 
-const connectDB = async () => {
-  try {
-    await mongoose.connect(mongoURI);
-    console.log("MongoDB connected successfully");
-  } catch (err) {
-    console.error("MongoDB connection failed:", err.message);
-    setTimeout(connectDB, 5000); // Retry connection after 5 seconds
-  }
-};
+// Token secret
+const TOKEN_SECRET = "secret";
 
-connectDB();
-
-const jokeSchema = new mongoose.Schema({
-  type: String,
-  content: String,
-  status: String,
-});
-
-const Joke = mongoose.model("Joke", jokeSchema);
-
-const userSchema = new mongoose.Schema({
-  email: String,
-  password: String,
-});
-
-const User = mongoose.model("User", userSchema);
-
-app.post("/auth/login", async (req, res) => {
-  const { email, password } = req.body;
-  const user = await User.findOne({ email });
-  if (user && bcrypt.compareSync(password, user.password)) {
-    const token = jwt.sign({ userId: user._id }, "secret");
-    res.json({ token });
-  } else {
-    res.status(401).send("Invalid credentials");
-  }
-});
-
+// Authentication middleware
 const authMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -203,7 +162,7 @@ const authMiddleware = (req, res, next) => {
 
   const token = authHeader.substring(7);
   try {
-    const payload = jwt.verify(token, "secret");
+    const payload = jwt.verify(token, TOKEN_SECRET);
     req.user = payload;
     next();
   } catch (error) {
@@ -211,78 +170,90 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-app.get("/", (req, res) => {
-  res.send("Hello World");
+// Login route using hardcoded credentials
+app.post("/auth/login", async (req, res) => {
+  const { email, password } = req.body;
+  if (email === HARD_CODED_EMAIL && password === HARD_CODED_PASSWORD) {
+    const token = jwt.sign({ userId: "admin" }, TOKEN_SECRET);
+    res.json({ token });
+  } else {
+    res.status(401).send("Invalid credentials");
+  }
 });
 
+// Get all jokes
 app.get("/jokes", authMiddleware, async (req, res) => {
-  const jokes = await Joke.find();
-  res.json(jokes);
+  try {
+    const response = await axios.get("http://localhost:3003/jokes");
+    res.json(response.data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server error");
+  }
 });
 
+// Update a joke
 app.put("/jokes/:id", authMiddleware, async (req, res) => {
   const { id } = req.params;
-  const joke = await Joke.findByIdAndUpdate(id, req.body, { new: true });
-  res.json(joke);
+  try {
+    const response = await axios.put(
+      `http://localhost:3003/jokes/${id}`,
+      req.body
+    );
+    res.json(response.data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server error");
+  }
 });
 
+// Delete a joke
 app.delete("/jokes/:id", authMiddleware, async (req, res) => {
   const { id } = req.params;
-
   try {
-    const result = await Joke.findByIdAndDelete(id);
-
-    if (result) {
-      res.send("Joke deleted");
-    } else {
-      res.status(404).send("Joke not found");
-    }
+    const response = await axios.delete(`http://localhost:3003/jokes/${id}`);
+    res.json(response.data);
   } catch (error) {
     console.error(error);
     res.status(500).send("Server error");
   }
 });
 
-app.delete("/mysql/jokes/:jokeId", authMiddleware, async (req, res) => {
-  const { jokeId } = req.params;
-  const jokeRepository = getRepository(JokeEntity);
-
+// Deliver a joke
+app.post("/deliver-joke", authMiddleware, async (req, res) => {
+  const { type, content, jokeId, status } = req.body;
   try {
-    const joke = await jokeRepository.findOne({ where: { jokeId } });
-
-    if (joke) {
-      await jokeRepository.remove(joke);
-      res.send("Joke deleted");
-    } else {
-      res.status(404).send("Joke not found");
-    }
+    const response = await axios.post("http://localhost:3000/jokes/add", {
+      type: type,
+      content: content,
+      jokeId: jokeId,
+      status: status,
+    });
+    res.json(response.data);
   } catch (error) {
     console.error(error);
     res.status(500).send("Server error");
   }
 });
 
-app.post("/mysql/jokes", authMiddleware, async (req, res) => {
-  const { type, content, jokeId } = req.body;
-  const jokeRepository = getRepository(JokeEntity);
-  const newJoke = jokeRepository.create({ type, content, jokeId });
-  await jokeRepository.save(newJoke);
-  res.json(newJoke);
+// Delete a joke (alternative endpoint)
+app.delete("/delete-joke", authMiddleware, async (req, res) => {
+  const { jokeId } = req.body;
+  try {
+    const response = await axios.delete(
+      `http://localhost:3000/jokes/delete/${jokeId}`
+    );
+    res.json(response.data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server error");
+  }
 });
 
-const seedAdminUser = async () => {
-  const email = "admin@admin.com";
-  const password = "admin123";
-  const hashedPassword = bcrypt.hashSync(password, 8);
-  const user = new User({ email, password: hashedPassword });
-  await user.save();
-};
-
+// Start server
 const startServer = async () => {
-  await createConnection();
-  await seedAdminUser();
-  app.listen(process.env.PORT || 3002, () => {
-    console.log("Server started on port 3002");
+  app.listen(3002, () => {
+    console.log("Moderate Jokes Microservice running on port 3002");
   });
 };
 
