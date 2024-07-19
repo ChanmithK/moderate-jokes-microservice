@@ -3,20 +3,24 @@ const bodyParser = require("body-parser");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const axios = require("axios");
+require("dotenv").config();
 
 // Initialize express app
+
 const app = express();
 app.use(bodyParser.json());
 
 // Use CORS middleware
 app.use(cors());
 
-// Hardcoded user credentials
-const HARD_CODED_EMAIL = "admin@admin.com";
-const HARD_CODED_PASSWORD = "admin123";
-
-// Token secret
-const TOKEN_SECRET = "secret";
+// Get environment variables
+const {
+  HARD_CODED_EMAIL,
+  HARD_CODED_PASSWORD,
+  TOKEN_SECRET,
+  SUBMIT_JOKES_URL,
+  DELIVER_JOKES_URL,
+} = process.env;
 
 // Authentication middleware
 const authMiddleware = (req, res, next) => {
@@ -42,6 +46,8 @@ app.get("/", (req, res) => {
 // Login route using hardcoded credentials
 app.post("/auth/login", async (req, res) => {
   const { email, password } = req.body;
+  console.log(HARD_CODED_EMAIL, HARD_CODED_PASSWORD, TOKEN_SECRET);
+
   if (email === HARD_CODED_EMAIL && password === HARD_CODED_PASSWORD) {
     const token = jwt.sign({ userId: "admin" }, TOKEN_SECRET);
     res.json({ token });
@@ -53,9 +59,7 @@ app.post("/auth/login", async (req, res) => {
 // Get all jokes
 app.get("/jokes", authMiddleware, async (req, res) => {
   try {
-    const response = await axios.get(
-      "https://submit-jokes-microservice-production.up.railway.app/jokes"
-    );
+    const response = await axios.get(SUBMIT_JOKES_URL);
     res.json(response.data);
   } catch (error) {
     console.error(error);
@@ -67,10 +71,7 @@ app.get("/jokes", authMiddleware, async (req, res) => {
 app.post("/type", authMiddleware, async (req, res) => {
   try {
     const newType = req.body; // Get the new type from the request body
-    const response = await axios.post(
-      "https://submit-jokes-microservice-production.up.railway.app/jokes/add-type",
-      newType
-    );
+    const response = await axios.post(`${SUBMIT_JOKES_URL}/add-type`, newType);
     res.json(response.data);
   } catch (error) {
     console.error(error);
@@ -81,9 +82,7 @@ app.post("/type", authMiddleware, async (req, res) => {
 // Get all types
 app.get("/types", authMiddleware, async (req, res) => {
   try {
-    const response = await axios.get(
-      "https://submit-jokes-microservice-production.up.railway.app/jokes/types"
-    );
+    const response = await axios.get(`${SUBMIT_JOKES_URL}/types`);
     res.json(response.data);
   } catch (error) {
     console.error(error);
@@ -95,10 +94,7 @@ app.get("/types", authMiddleware, async (req, res) => {
 app.put("/jokes/:id", authMiddleware, async (req, res) => {
   const { id } = req.params;
   try {
-    const response = await axios.put(
-      `https://submit-jokes-microservice-production.up.railway.app/jokes/${id}`,
-      req.body
-    );
+    const response = await axios.put(`${SUBMIT_JOKES_URL}/${id}`, req.body);
     res.json(response.data);
   } catch (error) {
     console.error(error);
@@ -110,9 +106,7 @@ app.put("/jokes/:id", authMiddleware, async (req, res) => {
 app.delete("/jokes/:id", authMiddleware, async (req, res) => {
   const { id } = req.params;
   try {
-    const response = await axios.delete(
-      `https://submit-jokes-microservice-production.up.railway.app/jokes/${id}`
-    );
+    const response = await axios.delete(`${SUBMIT_JOKES_URL}/${id}`);
     res.json(response.data);
   } catch (error) {
     console.error(error);
@@ -124,15 +118,12 @@ app.delete("/jokes/:id", authMiddleware, async (req, res) => {
 app.post("/deliver-joke", authMiddleware, async (req, res) => {
   const { type, content, jokeId, status } = req.body;
   try {
-    const response = await axios.post(
-      "https://deliver-jokes-microservice-production.up.railway.app/jokes/add",
-      {
-        type: type,
-        content: content,
-        jokeId: jokeId,
-        status: status,
-      }
-    );
+    const response = await axios.post(`${DELIVER_JOKES_URL}/add`, {
+      type: type,
+      content: content,
+      jokeId: jokeId,
+      status: status,
+    });
     res.json(response.data);
   } catch (error) {
     console.error(error);
@@ -145,7 +136,7 @@ app.delete("/delete-joke", authMiddleware, async (req, res) => {
   const { jokeId } = req.body;
   try {
     const response = await axios.delete(
-      `https://deliver-jokes-microservice-production.up.railway.app/jokes/delete/${jokeId}`
+      `${DELIVER_JOKES_URL}/delete/${jokeId}`
     );
     res.json(response.data);
   } catch (error) {
