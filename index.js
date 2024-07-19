@@ -45,7 +45,7 @@
 
 // app.get("/jokes", authMiddleware, async (req, res) => {
 //   try {
-//     const response = await axios.get("http://localhost:3003/jokes");
+//     const response = await axios.get("https://submit-jokes-microservice-production.up.railway.app/jokes");
 //     res.json(response.data);
 //   } catch (error) {
 //     console.error(error);
@@ -57,7 +57,7 @@
 //   const { id } = req.params;
 //   try {
 //     const response = await axios.put(
-//       `http://localhost:3003/jokes/${id}`,
+//       `https://submit-jokes-microservice-production.up.railway.app/jokes/${id}`,
 //       req.body
 //     );
 //     res.json(response.data);
@@ -70,7 +70,7 @@
 // app.delete("/jokes/:id", authMiddleware, async (req, res) => {
 //   const { id } = req.params;
 //   try {
-//     const response = await axios.delete(`http://localhost:3003/jokes/${id}`);
+//     const response = await axios.delete(`https://submit-jokes-microservice-production.up.railway.app/jokes/${id}`);
 //     res.json(response.data);
 //   } catch (error) {
 //     console.error(error);
@@ -87,7 +87,7 @@
 //     //   return res.status(404).send("Joke not found");
 //     // }
 
-//     const response = await axios.post("http://localhost:3000/jokes/add", {
+//     const response = await axios.post("https://deliver-jokes-microservice-production.up.railway.app//jokes/add", {
 //       type: type,
 //       content: content,
 //       jokeId: jokeId,
@@ -106,7 +106,7 @@
 
 //   try {
 //     const response = await axios.delete(
-//       `http://localhost:3000/jokes/delete/${jokeId}`
+//       `https://deliver-jokes-microservice-production.up.railway.app//jokes/delete/${jokeId}`
 //     );
 //     res.json(response.data);
 //   } catch (error) {
@@ -188,7 +188,9 @@ app.post("/auth/login", async (req, res) => {
 // Get all jokes
 app.get("/jokes", authMiddleware, async (req, res) => {
   try {
-    const response = await axios.get("http://localhost:3003/jokes");
+    const response = await axios.get(
+      "https://submit-jokes-microservice-production.up.railway.app/jokes"
+    );
     res.json(response.data);
   } catch (error) {
     console.error(error);
@@ -201,7 +203,7 @@ app.put("/jokes/:id", authMiddleware, async (req, res) => {
   const { id } = req.params;
   try {
     const response = await axios.put(
-      `http://localhost:3003/jokes/${id}`,
+      `https://submit-jokes-microservice-production.up.railway.app/jokes/${id}`,
       req.body
     );
     res.json(response.data);
@@ -215,7 +217,9 @@ app.put("/jokes/:id", authMiddleware, async (req, res) => {
 app.delete("/jokes/:id", authMiddleware, async (req, res) => {
   const { id } = req.params;
   try {
-    const response = await axios.delete(`http://localhost:3003/jokes/${id}`);
+    const response = await axios.delete(
+      `https://submit-jokes-microservice-production.up.railway.app/jokes/${id}`
+    );
     res.json(response.data);
   } catch (error) {
     console.error(error);
@@ -227,12 +231,15 @@ app.delete("/jokes/:id", authMiddleware, async (req, res) => {
 app.post("/deliver-joke", authMiddleware, async (req, res) => {
   const { type, content, jokeId, status } = req.body;
   try {
-    const response = await axios.post("http://localhost:3000/jokes/add", {
-      type: type,
-      content: content,
-      jokeId: jokeId,
-      status: status,
-    });
+    const response = await axios.post(
+      "https://deliver-jokes-microservice-production.up.railway.app/jokes/add",
+      {
+        type: type,
+        content: content,
+        jokeId: jokeId,
+        status: status,
+      }
+    );
     res.json(response.data);
   } catch (error) {
     console.error(error);
@@ -245,7 +252,7 @@ app.delete("/delete-joke", authMiddleware, async (req, res) => {
   const { jokeId } = req.body;
   try {
     const response = await axios.delete(
-      `http://localhost:3000/jokes/delete/${jokeId}`
+      `https://deliver-jokes-microservice-production.up.railway.app/jokes/delete/${jokeId}`
     );
     res.json(response.data);
   } catch (error) {
