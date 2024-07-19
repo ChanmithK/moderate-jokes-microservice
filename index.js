@@ -170,6 +170,10 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
+
 // Login route using hardcoded credentials
 app.post("/auth/login", async (req, res) => {
   const { email, password } = req.body;
