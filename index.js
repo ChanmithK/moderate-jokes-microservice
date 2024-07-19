@@ -6,7 +6,6 @@ const axios = require("axios");
 require("dotenv").config();
 
 // Initialize express app
-
 const app = express();
 app.use(bodyParser.json());
 
