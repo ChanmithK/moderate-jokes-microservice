@@ -211,6 +211,10 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
+app.get("/", (req, res) => {
+  res.send("Hello World");
+});
+
 app.get("/jokes", authMiddleware, async (req, res) => {
   const jokes = await Joke.find();
   res.json(jokes);
@@ -277,8 +281,8 @@ const seedAdminUser = async () => {
 const startServer = async () => {
   await createConnection();
   await seedAdminUser();
-  app.listen(process.env.PORT, "0.0.0.0", () => {
-    console.log(`Server running on port ${process.env.PORT}`);
+  app.listen(process.env.PORT || 3002, () => {
+    console.log("Server started on port 3002");
   });
 };
 
