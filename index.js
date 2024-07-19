@@ -68,7 +68,7 @@ app.post("/type", authMiddleware, async (req, res) => {
   try {
     const newType = req.body; // Get the new type from the request body
     const response = await axios.post(
-      "https://submit-jokes-microservice-production.up.railway.app/add-type",
+      "https://submit-jokes-microservice-production.up.railway.app/jokes/add-type",
       newType
     );
     res.json(response.data);
