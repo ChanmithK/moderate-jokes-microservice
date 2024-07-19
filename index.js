@@ -1,92 +1,3 @@
-// const express = require("express");
-// const mongoose = require("mongoose");
-// const bodyParser = require("body-parser");
-// const bcrypt = require("bcryptjs");
-// const jwt = require("jsonwebtoken");
-// const mysql = require("mysql2/promise");
-
-// const app = express();
-// app.use(bodyParser.json());
-
-// const mongoURI =
-//   "mongodb+srv://praveenk:Z4uq2BwMcoJWDZ3k@jokesapp.khokyn1.mongodb.net/?retryWrites=true&w=majority&appName=JokesApp";
-// mongoose.connect(mongoURI, {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
-// });
-
-// const jokeSchema = new mongoose.Schema({
-//   type: String,
-//   content: String,
-//   status: String,
-// });
-
-// const Joke = mongoose.model("Joke", jokeSchema);
-
-// const userSchema = new mongoose.Schema({
-//   email: String,
-//   password: String,
-// });
-
-// const User = mongoose.model("User", userSchema);
-
-// app.post("/auth/login", async (req, res) => {
-//   const { email, password } = req.body;
-//   const user = await User.findOne({ email });
-//   if (user && bcrypt.compareSync(password, user.password)) {
-//     const token = jwt.sign({ userId: user._id }, "secret");
-//     res.json({ token });
-//   } else {
-//     res.status(401).send("Invalid credentials");
-//   }
-// });
-
-// const authMiddleware = (req, res, next) => {
-//   const authHeader = req.headers.authorization;
-//   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-//     return res.status(401).send("Unauthorized");
-//   }
-
-//   const token = authHeader.substring(7);
-//   try {
-//     const payload = jwt.verify(token, "secret");
-//     req.user = payload;
-//     next();
-//   } catch (error) {
-//     res.status(401).send("Unauthorized");
-//   }
-// };
-
-// app.get("/jokes", authMiddleware, async (req, res) => {
-//   const jokes = await Joke.find();
-//   res.json(jokes);
-// });
-
-// app.put("/jokes/:id", authMiddleware, async (req, res) => {
-//   const { id } = req.params;
-//   const joke = await Joke.findByIdAndUpdate(id, req.body, { new: true });
-//   res.json(joke);
-// });
-
-// app.delete("/jokes/:id", authMiddleware, async (req, res) => {
-//   const { id } = req.params;
-//   await Joke.findByIdAndDelete(id);
-//   res.send("Joke deleted");
-// });
-
-// const seedAdminUser = async () => {
-//   const email = "admin@admin.com";
-//   const password = "admin123";
-//   const hashedPassword = bcrypt.hashSync(password, 8);
-//   const user = new User({ email, password: hashedPassword });
-//   await user.save();
-// };
-
-// app.listen(3000, () => {
-//   seedAdminUser();
-//   console.log("Moderate Jokes Microservice running on port 3000");
-// });
-
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
@@ -219,7 +130,9 @@ const seedAdminUser = async () => {
 const startServer = async () => {
   await createConnection();
   await seedAdminUser();
-  app.listen(process.env.PORT, "0.0.0.0");
+  app.listen(3002, () => {
+    console.log("Moderate Jokes Microservice running on port 3000");
+  });
 };
 
 startServer();
