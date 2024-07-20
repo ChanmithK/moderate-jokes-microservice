@@ -39,7 +39,7 @@ const authMiddleware = (req, res, next) => {
 };
 
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.send("Moderate Jokes Microservice");
 });
 
 // Login route using hardcoded credentials
